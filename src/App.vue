@@ -2,48 +2,56 @@
 import { reactive } from 'vue';
 
 const estado = reactive({
-  operacao: 'soma',
+  operacao: '+',
   valor1: 0,
   valor2: 0,
   resultado: ''
 })
 
 function soma(valor1, valor2){
-  return valor1 + valor2;
+  return parseFloat(valor1) + parseFloat(valor2);
 }
 
 function subtracao(valor1, valor2){
-  return valor1 - valor2;
+  return parseFloat(valor1) - parseFloat(valor2);
 }
 
 function multiplicacao(valor1, valor2){
-  return valor1 * valor2;
+  return parseFloat(valor1) * parseFloat(valor2);
 }
 
 function divisao(valor1, valor2){
-  return valor1 / valor2;
+  if (valor2 == 0) {
+    return 'Erro: Divisão por zero';
+  }
+  return parseFloat(valor1) / parseFloat(valor2);
 }
 
 function calculaOperacao(){
+  const valor1 = parseFloat(estado.valor1);
+  const valor2 = parseFloat(estado.valor2);
+
+  if (isNaN(valor1) || isNaN(valor2)) {
+    estado.resultado = '';
+    return;
+  }
+  
   switch(estado.operacao){
     case '+':
       estado.resultado = soma(estado.valor1, estado.valor2);
-      console.log("teste soma");
       break;
     case '-':
       estado.resultado = subtracao(estado.valor1, estado.valor2);
-      console.log("teste subt");
       break;
     case '*':
       estado.resultado = multiplicacao(estado.valor1, estado.valor2);
-      console.log("teste mult");
       break;
     case '/':
       estado.resultado = divisao(estado.valor1, estado.valor2);
-      console.log("teste div");
       break;
   }
 }
+
 
 </script>
 
@@ -58,7 +66,7 @@ function calculaOperacao(){
     <div class="row mt-5 pt-3 pb-5 text-center border">
       <h3 class="pb-3">Digite os valores:</h3>
       <div class="col-5">
-        <input @keyup="calculaOperacao()" type="text" class="form-control" placeholder="Primeiro valor" :value="estado.valor1" @input="event => estado.valor1 = event.target.value"/>
+        <input id='valor1' @keyup="calculaOperacao()" @change="calculaOperacao()" type="number" class="form-control" placeholder="Primeiro valor" :value="estado.valor1" @input="event => estado.valor1 = event.target.value"/>
       </div>
 
       <div class="col-2 text-center">
@@ -66,13 +74,13 @@ function calculaOperacao(){
       </div>
 
       <div class="col-5">
-        <input type="text" class="form-control" placeholder="Segundo valor" :value="estado.valor2" @input="event => estado.valor2 = event.target.value" />
+        <input id='valor2'  @keyup="calculaOperacao()" @change="calculaOperacao()" type="number" class="form-control" placeholder="Segundo valor" :value="estado.valor2" @input="event => estado.valor2 = event.target.value"/>
       </div>      
     </div>
     <div class="row mt-5 text-center pb-5 border">
       <div class="col-12">
         <h3 class="m-3 pb-3">Escolha a operação:</h3>
-        <select @change="evento => estado.operacao = evento.target.value" class="col-8 text-center">
+        <select v-model="estado.operacao" @change="calculaOperacao()" @keyup="calculaOperacao()" class="col-8 text-center">
           <option value="+">Soma +</option>
           <option value="-">Subtração -</option>
           <option value="*">Multiplicação x</option>
@@ -84,7 +92,8 @@ function calculaOperacao(){
       <div class="col-12">
         <h3 class="m-3 pb-3">Resultado:</h3>
         <div class="col-6 m-auto">
-          <input disabled type="text" value="estado.resultado" class="form-control text-center resultado" placeholder="Resultado" />
+          <span v-if="estado.resultado === ''">Insira os valores para calcular</span>
+          <span v-else> {{ estado.resultado }} </span>
         </div>
       </div>
     </div>
@@ -96,6 +105,11 @@ function calculaOperacao(){
 </template>
 
 <style scoped>
+.border{
+  background-color: rgb(250,250,250);
+}
+
+
 span {
   font-size: 30px;
   font-weight: bold;
